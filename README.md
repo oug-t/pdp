@@ -9,31 +9,22 @@
 
 ## Overview
 
-Current AI data consent is binary: you either accept a provider's global **Terms of Service**, or you don't use the model. There is no middle ground for per-request privacy.
+Current AI data consent is binary: you accept a provider's global **Terms of Service**, or you don't use the model. There is no middle ground for per-request privacy.
 
-**PDP** is a minimalist, header-based standard that enables granular, per-prompt data consent. By injecting a simple `X-PDP-Level` header into HTTP requests, users can explicitly signal to AI providers how their data should be handled—moving consent from a static legal document to a dynamic, programmable signal.
+**PDP** is a minimalist, header-based standard for granular, per-prompt data consent. By injecting an `X-PDP-Level` header into HTTP requests, users explicitly signal how their data should be handled—moving consent from a static legal document to a programmable signal.
+
+### Why it matters
+* **Granular Control**: Toggle privacy levels on a per-message basis.
+* **Fail-Safe**: All libraries default to `Level 0` (Private) if the signal is missing.
+* **Non-Invasive**: Lives in the transport layer; zero changes required to prompt JSON payloads.
 
 ## The Spec (Draft v1)
 
-The protocol relies on a single HTTP header: `X-PDP-Level`.
-
-| Level | Name         | Definition                                                                                           |
-| :---- | :----------- | :--------------------------------------------------------------------------------------------------- |
-| **0** | **Private**  | `NO_STORE`, `NO_TRAIN`. Provider must discard data immediately after inference.                      |
-| **1** | **Personal** | `STORE_SESSION`, `TRAIN_USER`. Data can be stored for user history and personal fine-tuning only.    |
-| **2** | **Global**   | `STORE_PERM`, `TRAIN_BASE`. Data contributes to the global training set for base model improvements. |
-
-## Language Support
-
-We provide fail-safe libraries for the most common AI stack languages.
-
-| Language       | Path          | Feature                        |
-| :------------- | :------------ | :----------------------------- |
-| **Go**         | `libs/go`     | Middleware & Context Injection |
-| **Python**     | `libs/python` | Client Enums & Header Helpers  |
-| **TypeScript** | `libs/ts`     | Type Definitions & Enums       |
-| **Java**       | `libs/java`   | Enterprise Static Utilities    |
-| **JavaScript** | `libs/js`     | Lightweight Client             |
+| Level | Name | Compliance Requirement |
+| :--- | :--- | :--- |
+| **0** | **Private** | `NO_STORE`, `NO_TRAIN`. Immediate discard after inference. |
+| **1** | **Personal** | `STORE_SESSION`. Allowed for user history and RAG context only. |
+| **2** | **Global** | `STORE_PERM`. Consent granted for base model improvements. |
 
 ## Quick Start
 
@@ -100,6 +91,17 @@ import pdp.PDP;
 Map<String, String> headers = PDP.getHeader(PDP.LEVEL_GLOBAL);
 ```
 
-## Contributing
 
-Looking for RFC comments on the specification structure. Please open an issue or submit a PR to `spec/`.
+## Philosophy & FAQ
+
+### Is this enforceable?
+PDP is a **signal**, not a DRM—much like `robots.txt`. It provides a standardized protocol for compliant providers to honor user intent and enables enterprise proxies to enforce data policies at the network edge.
+
+### Why a header instead of a JSON field?
+* **Transport Efficiency**: Gateways can route or block traffic without parsing request bodies.
+* **Model Agnosticism**: Keeps payloads "pure" and compatible across providers.
+* **Auditability**: Privacy levels can be audited in transit using standard network logs.
+
+
+## Contributing
+We are seeking RFC comments on the specification structure. Please open an issue or submit a PR to `spec/`.
