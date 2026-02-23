@@ -95,4 +95,4 @@ Map<String, String> headers = PDP.getHeader(PDP.LEVEL_GLOBAL);
 
 ## Contributing
 
-Looking for RFC comments on the specification structure. Please open an issue or submit a PR to spec/.
+Looking for RFC comments on the specification structure. Please open an issue or submit a PR to `spec/`.
