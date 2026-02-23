@@ -1,45 +1,28 @@
-# Prompt Data Protocol (PDP) Specification
+# Prompt Data Protocol (PDP) Specification v1.0.0
 
-**Version:** 1.0 (Draft)  
-**Status:** Proposed Standard
+## Abstract
 
-## 1. Abstract
+Current AI data consent is binary and account-wide. PDP introduces per-transaction granularity using the `X-PDP-Level` HTTP header.
 
-The Prompt Data Protocol (PDP) defines a standardized method for clients to communicate data usage and training consent to AI service providers. It allows per-request granularity for data retention and model training.
+## Header Definition
 
-## 2. Transmission Mechanisms
+Field Name: `X-PDP-Level`
+Type: Integer (0-2)
 
-PDP declarations MUST be transmitted via one of two standard methods:
+## Compliance Requirements
 
-### 2.1 HTTP Header (Preferred)
+### Level 0 (Private)
 
-Clients communicating over HTTP(S) SHOULD include the `X-PDP-Level` header in their requests.
+- **Storage:** Volatile memory only.
+- **Logging:** No prompts in application logs.
+- **Training:** Strictly prohibited.
 
-**Syntax:**
-`X-PDP-Level: <integer>`
+### Level 1 (Personal)
 
-### 2.2 JSON Payload
+- **Storage:** Allowed for user history features.
+- **Training:** Allowed for LoRA/Fine-tuning specific to this `user_id`.
 
-For WebSocket connections or when modifying headers is impossible, clients MAY include a `pdp_level` key at the root of the JSON payload.
+### Level 2 (Global)
 
-**Syntax:**
-`{ "pdp_level": <integer>, "messages": [...] }`
-
-## 3. PDP Levels
-
-Providers implementing PDP MUST respect the following numerical levels:
-
-- **Level `0` (Strictly Private)**
-    - **Rule:** The provider MUST NOT store the prompt or response permanently. The provider MUST NOT use the data to train, fine-tune, or evaluate any generalized or user-specific models.
-- **Level `1` (Local Refinement)**
-    - **Rule:** The provider MAY store the data and use it to personalize the experience or fine-tune models _strictly_ for the current user or organization. The data MUST NOT leak into global base models.
-- **Level `2` (Global Training)**
-    - **Rule:** The provider MAY use the data for global model training, telemetry, and evaluation, in accordance with their standard terms of service.
-
-## 4. Fallback Behavior
-
-If a request is received without a valid PDP indicator, providers SHOULD default to the consent settings configured at the user's account level. If no account-level setting exists, providers SHOULD default to Level `0` (Strictly Private).
-
-## 5. Extensibility
-
-Future versions of this protocol may introduce a `X-PDP-Options` header for granular flags (e.g., `X-PDP-Options: ttl=3600`), but v1 parsers MUST ignore unrecognized headers to maintain backward compatibility.
+- **Storage:** Permanent.
+- **Training:** Allowed for base model pre-training and RLHF.
