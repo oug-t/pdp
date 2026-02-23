@@ -1,10 +1,17 @@
-# PDP (Prompt Data Protocol)
+# PDP: Prompt Data Protocol
+### *The `robots.txt` for the Generative AI Era.*
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo_Active-brightgreen)](https://oug-t.github.io/pdp/) [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[**Explore Live Demo →**](https://oug-t.github.io/pdp/)
 
-**The `robots.txt` for AI Prompts.**
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE) [![Status](https://img.shields.io/badge/Status-Draft_RFC-orange)](https://github.com/oug-t/pdp/issues)
 
-PDP is a minimalist, header-based standard that allows users to explicitly signal how their data should be used by AI providers. It moves consent from the "Terms of Service" (global) to the "HTTP Header" (per-request).
+---
+
+## Overview
+
+Current AI data consent is binary: you either accept a provider's global **Terms of Service**, or you don't use the model. There is no middle ground for per-request privacy.
+
+**PDP** is a minimalist, header-based standard that enables granular, per-prompt data consent. By injecting a simple `X-PDP-Level` header into HTTP requests, users can explicitly signal to AI providers how their data should be handled—moving consent from a static legal document to a dynamic, programmable signal.
 
 ## The Spec (Draft v1)
 
