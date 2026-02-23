@@ -1,14 +1,462 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>svelte-chat</title>
-    <script type="module" crossorigin src="./assets/index-CiBfXSZc.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-DNMtJkfe.css">
-  </head>
-  <body>
-    <div id="app"></div>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>PDP // Prompt Data Protocol</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+            rel="stylesheet"
+        />
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            sans: ["Inter", "sans-serif"],
+                            mono: ["JetBrains Mono", "monospace"],
+                        },
+                        colors: { gray: { 850: "#1f2937" } }, // Custom darks if needed
+                    },
+                },
+            };
+        </script>
+        <style>
+            body {
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .fade-in {
+                animation: fadeIn 0.3s ease-out forwards;
+                opacity: 0;
+                transform: translateY(4px);
+            }
+            @keyframes fadeIn {
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body
+        class="bg-white text-slate-900 h-screen w-screen overflow-hidden flex selection:bg-slate-100"
+    >
+        <nav
+            class="w-72 bg-slate-50 border-r border-slate-200/60 p-6 hidden lg:flex flex-col justify-between"
+        >
+            <div>
+                <div class="flex items-center gap-3 mb-10 pl-1">
+                    <div
+                        class="w-5 h-5 bg-slate-900 rounded-[4px] flex items-center justify-center text-white font-bold text-[10px]"
+                    >
+                        P
+                    </div>
+                    <span
+                        class="font-semibold text-sm tracking-tight text-slate-900"
+                        >PDP Standard</span
+                    >
+                </div>
+
+                <div class="space-y-1">
+                    <button
+                        class="w-full text-left px-3 py-2 rounded-md bg-white border border-slate-200 shadow-sm text-sm font-medium text-slate-700 hover:border-slate-300 transition-all flex justify-between items-center group"
+                    >
+                        <span>New Thread</span>
+                        <kbd
+                            class="font-mono text-[10px] text-slate-400 border border-slate-200 px-1 rounded bg-slate-50 group-hover:bg-white"
+                            >⌘K</kbd
+                        >
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div
+                    class="p-3 bg-slate-100/50 rounded-lg border border-slate-200/50"
+                >
+                    <div
+                        class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2"
+                    >
+                        Protocol Status
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-slate-700">
+                        <div
+                            class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                        ></div>
+                        Active v1.0.0
+                    </div>
+                </div>
+                <div class="text-[10px] text-slate-400 pl-1">
+                    <a
+                        href="https://github.com/oug-t/pdp"
+                        class="hover:text-slate-900 transition-colors underline decoration-slate-300 underline-offset-2"
+                        >Documentation</a
+                    >
+                </div>
+            </div>
+        </nav>
+
+        <main class="flex-1 flex flex-col relative h-full bg-white">
+            <div
+                id="chat-container"
+                class="flex-1 overflow-y-auto p-6 md:p-10 space-y-10 pb-40 scroll-smooth scrollbar-hide"
+            >
+                <div
+                    class="flex gap-6 max-w-3xl mx-auto opacity-0 animate-[fadeIn_0.5s_ease-out_forwards]"
+                >
+                    <div
+                        class="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center shrink-0 text-slate-900"
+                    >
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+                            <path
+                                d="M12 12 2.1 12a10.1 10.1 0 0 0 9.9 10"
+                            ></path>
+                            <path
+                                d="M12 12 11.9 2.1a10.1 10.1 0 0 1 9.9 9.9"
+                            ></path>
+                        </svg>
+                    </div>
+                    <div class="space-y-2 pt-1">
+                        <div class="text-[15px] leading-relaxed text-slate-700">
+                            The Prompt Data Protocol (PDP) is active. Select a
+                            data classification level to inspect how headers are
+                            injected into the request payload.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white/95 to-transparent pt-20"
+            >
+                <div class="max-w-3xl mx-auto w-full relative z-10">
+                    <form
+                        id="chat-form"
+                        class="bg-white border border-slate-200 rounded-3xl p-2 shadow-[0_8px_30px_rgba(0,0,0,0.04)] ring-1 ring-slate-100 focus-within:ring-2 focus-within:ring-slate-200 focus-within:border-slate-400 transition-all duration-300 relative"
+                    >
+                        <div
+                            class="absolute -top-10 left-0 flex gap-2 opacity-0 transition-opacity duration-300"
+                            id="typing-indicator"
+                        >
+                            <span class="text-xs text-slate-400 font-medium"
+                                >Processing request...</span
+                            >
+                        </div>
+
+                        <div
+                            class="flex gap-1 px-3 pt-2 mb-1"
+                            id="level-toggles"
+                        ></div>
+
+                        <div class="flex items-center gap-3 px-3 pb-2">
+                            <input
+                                id="user-input"
+                                type="text"
+                                placeholder="Send a message..."
+                                autocomplete="off"
+                                class="flex-1 bg-transparent border-none py-2 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none font-sans"
+                            />
+
+                            <button
+                                type="submit"
+                                id="send-btn"
+                                disabled
+                                class="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 disabled:opacity-20 disabled:hover:bg-slate-900 transition-all"
+                            >
+                                <svg
+                                    width="14"
+                                    height="14"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2.5"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon
+                                        points="22 2 15 22 11 13 2 9 22 2"
+                                    ></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4 h-6">
+                        <span
+                            id="policy-text"
+                            class="text-[11px] text-slate-400 font-medium transition-all duration-300"
+                        ></span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside
+            class="w-[22rem] bg-slate-50 border-l border-slate-200/60 flex flex-col hidden xl:flex"
+        >
+            <div class="p-6 border-b border-slate-200/40">
+                <h2
+                    class="text-xs font-bold text-slate-400 uppercase tracking-widest"
+                >
+                    Request Inspector
+                </h2>
+            </div>
+
+            <div class="p-6 space-y-8 overflow-y-auto">
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label
+                            class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider"
+                            >Header Injection</label
+                        >
+                        <div
+                            id="status-dot"
+                            class="w-1.5 h-1.5 rounded-full bg-slate-300 transition-colors duration-300"
+                        ></div>
+                    </div>
+                    <div
+                        class="font-mono text-[13px] bg-white border border-slate-200 rounded-lg p-3 shadow-sm text-slate-600 transition-all duration-300"
+                        id="header-card"
+                    >
+                        <span class="text-purple-600">X-PDP-Level</span>:
+                        <span id="header-value" class="text-slate-900 font-bold"
+                            >0</span
+                        >
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label
+                        class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider"
+                        >Policy Definition</label
+                    >
+                    <div
+                        class="p-4 bg-white border border-slate-200 rounded-xl shadow-sm space-y-3"
+                    >
+                        <div class="flex items-center gap-2">
+                            <div
+                                id="policy-icon"
+                                class="w-4 h-4 rounded text-xs flex items-center justify-center font-bold bg-slate-100 text-slate-500"
+                            >
+                                L0
+                            </div>
+                            <span
+                                id="inspector-title"
+                                class="text-sm font-semibold text-slate-800"
+                                >Private</span
+                            >
+                        </div>
+                        <p
+                            id="inspector-desc"
+                            class="text-xs text-slate-500 leading-relaxed border-t border-slate-100 pt-3"
+                        >
+                            Data must not be persisted.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-auto p-6 border-t border-slate-200/40">
+                <div class="font-mono text-[10px] text-slate-400 text-center">
+                    PDP-SPEC-DRAFT-01
+                </div>
+            </div>
+        </aside>
+
+        <script>
+            // CONFIGURATION
+            const levels = [
+                {
+                    id: 0,
+                    label: "Private",
+                    desc: "Strictly Private. Provider must not store or train.",
+                    theme: {
+                        btn: "text-emerald-700 bg-emerald-50 border-emerald-200",
+                        dot: "bg-emerald-500",
+                        icon: "L0",
+                    },
+                },
+                {
+                    id: 1,
+                    label: "Personal",
+                    desc: "Local Refinement. Storage allowed for user context only.",
+                    theme: {
+                        btn: "text-amber-700 bg-amber-50 border-amber-200",
+                        dot: "bg-amber-500",
+                        icon: "L1",
+                    },
+                },
+                {
+                    id: 2,
+                    label: "Global",
+                    desc: "Global Training. Consent granted for base model updates.",
+                    theme: {
+                        btn: "text-rose-700 bg-rose-50 border-rose-200",
+                        dot: "bg-rose-500",
+                        icon: "L2",
+                    },
+                },
+            ];
+
+            let state = { level: 0, isSending: false };
+
+            // DOM ELEMENTS
+            const els = {
+                input: document.getElementById("user-input"),
+                form: document.getElementById("chat-form"),
+                container: document.getElementById("chat-container"),
+                toggles: document.getElementById("level-toggles"),
+                btn: document.getElementById("send-btn"),
+                indicator: document.getElementById("typing-indicator"),
+                // Inspector
+                headerVal: document.getElementById("header-value"),
+                headerCard: document.getElementById("header-card"),
+                statusDot: document.getElementById("status-dot"),
+                inspTitle: document.getElementById("inspector-title"),
+                inspDesc: document.getElementById("inspector-desc"),
+                inspIcon: document.getElementById("policy-icon"),
+                policyText: document.getElementById("policy-text"),
+            };
+
+            // RENDER LOGIC
+            function render() {
+                // Level Toggles
+                els.toggles.innerHTML = levels
+                    .map((l) => {
+                        const isActive = state.level === l.id;
+                        const activeClass = isActive
+                            ? l.theme.btn
+                            : "text-slate-500 border-transparent hover:bg-slate-50";
+                        const opacity = isActive
+                            ? "opacity-100"
+                            : "opacity-30 grayscale";
+
+                        return `
+                <button type="button" onclick="setLevel(${l.id})" 
+                    class="px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all duration-200 flex items-center gap-2 border ${activeClass}">
+                    <div class="w-1.5 h-1.5 rounded-full ${l.theme.dot} ${opacity}"></div>
+                    ${l.label}
+                </button>`;
+                    })
+                    .join("");
+
+                // Updates
+                const lvl = levels[state.level];
+
+                // Text Updates
+                els.headerVal.innerText = lvl.id;
+                els.inspTitle.innerText = lvl.label;
+                els.inspDesc.innerText = lvl.desc;
+                els.inspIcon.innerText = lvl.theme.icon;
+                els.policyText.innerText = lvl.desc;
+
+                // Visual Updates
+                els.inspIcon.className = `w-5 h-5 rounded text-[10px] flex items-center justify-center font-bold transition-colors duration-300 ${lvl.theme.btn}`;
+                els.statusDot.className = `w-1.5 h-1.5 rounded-full transition-colors duration-300 ${lvl.theme.dot}`;
+
+                // Flash Inspector
+                if (state.flash) {
+                    els.headerCard.classList.add(
+                        "ring-2",
+                        "ring-offset-2",
+                        "ring-slate-400",
+                        "bg-slate-50"
+                    );
+                    setTimeout(
+                        () =>
+                            els.headerCard.classList.remove(
+                                "ring-2",
+                                "ring-offset-2",
+                                "ring-slate-400",
+                                "bg-slate-50"
+                            ),
+                        300
+                    );
+                    state.flash = false;
+                }
+            }
+
+            // ACTIONS
+            window.setLevel = (id) => {
+                state.level = id;
+                state.flash = true;
+                render();
+            };
+
+            function addMessage(role, text) {
+                const isUser = role === "user";
+                const div = document.createElement("div");
+                div.className = `flex gap-6 max-w-3xl mx-auto fade-in ${isUser ? "flex-row-reverse" : ""}`;
+
+                div.innerHTML = `
+                <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${isUser ? "bg-slate-900 text-white" : "border border-slate-200 bg-white text-slate-900"}">
+                    ${isUser ? "" : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 12 2.1 12a10.1 10.1 0 0 0 9.9 10"></path><path d="M12 12 11.9 2.1a10.1 10.1 0 0 1 9.9 9.9"></path></svg>'}
+                </div>
+                <div class="space-y-1 pt-1.5 max-w-[85%] ${isUser ? "text-right" : ""}">
+                    <div class="text-[15px] leading-relaxed text-slate-800 whitespace-pre-wrap">${text}</div>
+                </div>
+            `;
+
+                els.container.appendChild(div);
+                els.container.scrollTo({
+                    top: els.container.scrollHeight,
+                    behavior: "smooth",
+                });
+            }
+
+            // EVENT LISTENERS
+            els.input.addEventListener("input", (e) => {
+                els.btn.disabled = !e.target.value.trim();
+            });
+
+            els.form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                if (state.isSending) return;
+
+                const text = els.input.value.trim();
+                if (!text) return;
+
+                state.isSending = true;
+                addMessage("user", text);
+                els.input.value = "";
+                els.btn.disabled = true;
+                els.indicator.classList.remove("opacity-0");
+
+                // Simulate Network Latency
+                await new Promise((r) => setTimeout(r, 800));
+
+                const lvl = levels[state.level];
+                const response = `Request processed.\n\n<span class="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">X-PDP-Level: ${lvl.id}</span> detected.\nApplied policy: <strong>${lvl.label}</strong>.`;
+
+                addMessage("ai", response);
+                els.indicator.classList.add("opacity-0");
+                state.isSending = false;
+            });
+
+            // INIT
+            render();
+        </script>
+    </body>
 </html>
